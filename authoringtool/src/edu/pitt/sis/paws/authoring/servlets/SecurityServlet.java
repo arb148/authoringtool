@@ -87,7 +87,8 @@ public class SecurityServlet extends AbstractServlet {
             /********************************************************************/ 
 			if (this.action.equalsIgnoreCase("LOGIN")) {
                 if (checkLogin(req))
-                    res.sendRedirect(res.encodeRedirectURL(req.getContextPath()+"/home.jsp"));
+                	res.sendRedirect(res.encodeRedirectURL(req.getContextPath()+"/authoring.jsp"));
+//                    res.sendRedirect(res.encodeRedirectURL(req.getContextPath()+"/home.jsp"));
                 else 
                     res.sendRedirect(res.encodeRedirectURL(req.getContextPath()+"/index.html?" +
                             Const.REQ_PARAM_ACT + "=LOGINFAILED"));               

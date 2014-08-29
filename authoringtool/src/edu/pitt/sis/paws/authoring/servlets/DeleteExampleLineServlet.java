@@ -13,7 +13,6 @@ import java.sql.*;
 /**
  * Servlet implementation class DeleteExampleLineServlet
  */
-@WebServlet("/DeleteExampleLineServlet")
 public class DeleteExampleLineServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        

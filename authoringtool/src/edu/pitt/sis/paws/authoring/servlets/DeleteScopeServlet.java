@@ -21,7 +21,6 @@ import java.util.ArrayList;
 /**
  * Servlet implementation class DeleteScopeServlet
  */
-@WebServlet("/DeleteScopeServlet")
 public class DeleteScopeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        

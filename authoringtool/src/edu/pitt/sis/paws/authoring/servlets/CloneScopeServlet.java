@@ -13,7 +13,6 @@ import java.util.List;
 /**
  * Servlet implementation class CloneServlet
  */
-@WebServlet("/CloneServlet")
 public class CloneScopeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        

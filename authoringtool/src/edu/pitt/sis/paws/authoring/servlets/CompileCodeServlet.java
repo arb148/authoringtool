@@ -17,7 +17,6 @@ import edu.pitt.sis.paws.authoring.parser.CompileSource;
 /**
  * Servlet implementation class CompileCodeServlet
  */
-@WebServlet("/CompileCodeServlet")
 public class CompileCodeServlet extends AbstractServlet {
 	private static final long serialVersionUID = 1L;
 

@@ -11,7 +11,6 @@ import java.sql.*;
 /**
  * Servlet implementation class DeleteExampleServlet
  */
-@WebServlet("/DeleteExampleServlet")
 public class DeleteExampleServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        

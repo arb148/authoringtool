@@ -16,7 +16,6 @@ import java.sql.*;
 /**
  * Servlet implementation class CloneExampleServlet
  */
-@WebServlet("/CloneExampleServlet")
 public class CloneExampleServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
