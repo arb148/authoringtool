@@ -155,7 +155,8 @@ public class SecurityServlet extends AbstractServlet {
 			} 
             else if (this.action.equalsIgnoreCase("GETDELETEUSERLIST")) {
 				if (getUserList())
-				    res.sendRedirect(res.encodeRedirectURL(req.getContextPath() + "/deleteUser.jsp"));
+					res.sendRedirect(res.encodeRedirectURL(req.getContextPath() + "/deleteuserlist.jsp"));
+//				    res.sendRedirect(res.encodeRedirectURL(req.getContextPath() + "/deleteUser.jsp"));
                 else
                     res.sendRedirect(res.encodeRedirectURL(req.getContextPath() +
                             "/servletResponse.jsp?" + Const.REQ_PARAM_ACT + "=GETDELETEUSERLISTFAILED"));                
@@ -412,7 +413,7 @@ public class SecurityServlet extends AbstractServlet {
  * @return true if the user lust was retreived from the DB, false if an error occured
  */     
 	private boolean getUserList() {
-        String querUserList = "SELECT * FROM user";
+        String querUserList = "SELECT * FROM ent_user";
         Vector<UserBean> userList = new Vector<UserBean>();        
         try {
             ResultSet rs = SqlUtil.executeStatement(this.dbConn, querUserList);

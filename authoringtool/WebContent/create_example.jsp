@@ -169,7 +169,8 @@
 	<div class="form-group">
 	    <div class="col-sm-offset-3 col-sm-9">
 	    	<input Type= "button" value="Create" fn='create' class="btn btn-default">
-	    	<input type="reset" value="Clear" onclick="clearForm();" class="btn btn-default pull-right">
+	    	<input type="reset" value="Clear" onclick="clearForm();" class="btn btn-default">
+	    	<a href="authoring.jsp?type=example" class="btn btn-default pull-right">Cancel</a>
 	    </div>
 	</div>
 </form>

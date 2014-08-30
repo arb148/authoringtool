@@ -2,28 +2,37 @@
 <%@ include file = "include/htmltop.jsp" %>
 
 <script language="JavaScript" type="text/javascript">
-<!--
-function validateForm() {
-	var reNotName = new RegExp(/\W+/);
-    if(reNotName.test(document.formUser.login.value)) {
-        alert("Group Name can have only alphanumerical symbols and underscores");
-        return false;
-    }
-	return true;
-}
--->
+	function validateForm() {
+		var reNotName = new RegExp(/\W+/);
+	    if(reNotName.test(document.formGroup.nameInput.value)) {
+	    	alertMessage("Group Name can have only alphanumerical symbols and underscores");
+	        return false;
+	    }
+		return true;
+	}
+	
+	function validateFormDelete() {
+		if (validateForm()) {
+			return confirm('Are you sure you want to delete this group?');
+		}
+	    return false;
+	}
+	
+	function alertMessage (text) {
+		$("#alertMessage").hide().html('<div class="alert alert-danger alert-dismissible" role="alert">'+
+				'<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>'+
+				text+'</div>').fadeIn('slow');
+		$("html, body").animate({ scrollTop: 0 }, "slow");
+	}
 </script>
-
-<table cellpadding="0" cellspacing="0">
-    <tr> 
+ 
 <% 				
 	String action = request.getParameter("action");
 	String welcome = null;
 	int index = 0;
 	Vector userList = null;
  	if (action != null) {		
-		if ((action.equalsIgnoreCase("MODIFYGROUP") || action.equalsIgnoreCase("DELETEGROUP"))
-			&& userBean.getGroupBean() != null) {
+		if ((action.equalsIgnoreCase("MODIFYGROUP") || action.equalsIgnoreCase("DELETEGROUP")) && userBean.getGroupBean() != null) {
 			userList = (Vector) session.getAttribute("userList");
 			if (userList == null) {
 				if (action.equalsIgnoreCase("MODIFYGROUP")) {
@@ -46,34 +55,32 @@ function validateForm() {
 		} 	
 		session.removeAttribute("userList");
 %>
-	<td class="tabhead"><nobr><%=welcome%></nobr>     </td>
-    </tr>
-    <tr> 
-		<td class="formtabmain">	
-			<form name="formGroup" id="formGroup" method="post" action="SecurityServlet?action=<%=action%>" onSubmit="return <%=(action.equalsIgnoreCase("DELETEGROUP")) ? "confirm('Are you sure you want to delete this group?');" : "true" %>">
-						<input type="hidden" name="groupId" value="
-							<%=(action.equalsIgnoreCase("MODIFYGROUP") || action.equalsIgnoreCase("DELETEGROUP")) ? userBean.getGroupBean().getId() : -1%>
-						" />
-			<table width="100%" cellpadding="0" cellspacing="0">
-				<tr>
-					<td class="formfieldlight formfieldaligntright">Group Name :</td>
-					<td class="formfieldlight">
-						<input type="text" <%=(action.equalsIgnoreCase("DELETEGROUP")) ? "disabled" :""%> name="name" value="
-						<%=(action.equalsIgnoreCase("MODIFYGROUP") || action.equalsIgnoreCase("DELETEGROUP")) ? userBean.getGroupBean().getName() : ""%>
-						" />&nbsp;
-					</td>
-				</tr>
-				<tr>
-					<td class="formfielddark formfieldaligntright">Number of Users :</td>
-					<td class="formfielddark">
-						<b><i><%=(action.equalsIgnoreCase("MODIFYGROUP") || action.equalsIgnoreCase("DELETEGROUP")) ? userList.size() : 0%></i></b>
-					</td>
-				</tr>
-				<tr>
-					<td class="formfieldlight formfieldaligntright">Group Owner :</td>
-					<td class="formfieldlight">						
-						<select <%=(action.equalsIgnoreCase("DELETEGROUP")) ? "disabled" :""%> name="ownerId" <%=(!userBean.isAdmin()) ? "readonly" : ""%> size="1">
-<%						if (userList != null) { 						
+	<h3><%= welcome %></h3>
+	<hr>
+	
+	<form class="form-horizontal" role="form" name="formGroup" id="formGroup" method="post" action="SecurityServlet?action=<%=action%>" onSubmit="return <%=(action.equalsIgnoreCase("DELETEGROUP")) ? "validateFormDelete();" : "validateForm();" %>">
+		<input type="hidden" name="groupId" value="<%= (action.equalsIgnoreCase("MODIFYGROUP") || action.equalsIgnoreCase("DELETEGROUP")) ? userBean.getGroupBean().getId() : -1 %>" />
+		<div id="alertMessage"></div>
+			<div class="form-group">
+			    <label for="name" class="col-sm-3 control-label">Group Name:</label>
+			    <div class="col-sm-9">
+					<input type="text" <%=(action.equalsIgnoreCase("DELETEGROUP")) ? "disabled" :""%> name="name" value="
+					<%=(action.equalsIgnoreCase("MODIFYGROUP") || action.equalsIgnoreCase("DELETEGROUP")) ? userBean.getGroupBean().getName() : ""%>
+					" class="form-control" id="nameInput"/>
+			    </div>
+			</div>
+			<div class="form-group">
+			    <label for="num" class="col-sm-3 control-label">Number of Users:</label>
+			    <div class="col-sm-9" id="num">
+					<b><i><%=(action.equalsIgnoreCase("MODIFYGROUP") || action.equalsIgnoreCase("DELETEGROUP")) ? userList.size() : 0%></i></b>
+			    </div>
+			</div>
+			<div class="form-group">
+		    	<label for="ownerId" class="col-sm-3 control-label">Group Owner:</label>
+			    <div class="col-sm-9">
+			    	<select <%=(action.equalsIgnoreCase("DELETEGROUP")) ? "disabled" :""%> name="ownerId" <%=(!userBean.isAdmin()) ? "readonly" : ""%> size="1" class="form-control">
+<%
+						if (userList != null) { 						
 							Iterator i = userList.iterator();
 							System.out.println(userList.size());
 							while (i.hasNext()) {
@@ -81,37 +88,29 @@ function validateForm() {
 								System.out.println("user" + uBean.getLogin() + ((uBean.isAdmin()) ? " admin " : ((uBean.isSuperUser() ? " superuser " : ""))));
 								if (uBean.isAdmin() || uBean.isSuperUser()) {
 %>
-								<option <%=(uBean.getId() == userBean.getGroupBean().getOwnerId()) ? "selected" : ""%> value="
-								<%=uBean.getId()%>">
-									<%=uBean.getLogin()%>
-								</option>
+						<option <%=(uBean.getId() == userBean.getGroupBean().getOwnerId()) ? "selected" : ""%> value="<%=uBean.getId()%>"><%=uBean.getLogin()%></option>
 <%
 								}
 							}
 						} else {
 %>						
-								<option selected value="<%=userBean.getId()%>">
-									<%=userBean.getLogin()%>
-								</option>
+						<option selected value="<%=userBean.getId()%>"><%=userBean.getLogin()%></option>
 <%
 						}
 %>
-				    </select>
-					</td>
-				</tr>
-				</table>
-				</td>
-				</tr>
-				<tr>
-					<td colspan="2" class="formbuttons">				    
-						<input name="submit" type="submit" value="SUBMIT" />
-					</td>
-				</tr> 
-			
-			</form>
+			    	</select>
+			    </div>
+			</div>
+			<div class="form-group">
+			    <div class="col-sm-offset-3 col-sm-9">
+			    	<input name="submit" type="submit" value="Submit" class="btn btn-default" />
+			    </div>
+			</div>
+		</form>
 <%	
+	} else {
+		response.sendRedirect("home.jsp");
 	}
 %>
 
-    </table>
 <%@ include file = "include/htmlbottom.jsp" %>

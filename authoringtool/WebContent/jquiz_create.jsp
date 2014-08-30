@@ -96,7 +96,8 @@ function function3(obj,i){
 	<div class="form-group">
 	    <div class="col-sm-offset-3 col-sm-9">
 	      <input type="submit" value="Create" fn = 'createQuiz' class="btn btn-default">
-	      <input type="reset" value="Clear" OnClick="document.form.message.focus()" class="btn btn-default pull-right">
+	      <input type="reset" value="Clear" OnClick="document.form.message.focus()" class="btn btn-default">
+	      <a href="authoring.jsp" class="btn btn-default pull-right">Cancel</a>
 	    </div>
 	</div>
 </form>

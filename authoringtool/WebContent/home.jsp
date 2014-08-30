@@ -9,7 +9,7 @@
 
 //if (userBean.getGroupBean().getName().equals("teachers") | userBean.getGroupBean().getName().equals("admins") )
 //{
-	response.sendRedirect("TopicAuthoring.jsp");	
+	response.sendRedirect("authoring.jsp");	
 //}	 
 %>
 		

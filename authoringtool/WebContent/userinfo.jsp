@@ -2,34 +2,37 @@
 <%@ include file = "include/htmltop.jsp" %>
 
 <script language="JavaScript" type="text/javascript">
-<!--
-function validateForm() {
-    var reName = new RegExp(/\w+/);
-    if(!reName.test(document.formUser.name.value)) {
-        alert("User name cannot be empty");
-        return false;
-    }
-	var reNotLogPass = new RegExp(/[a-zA-Z0-9_]+[a-zA-Z0-9_;:,-\.]*/); /*\W+*/
-    if(!reNotLogPass.test(document.formUser.login.value)) {
-        alert("User login can have only alphanumerical symbols and underscores");
-        return false;
-    }
-
-	if(!reNotLogPass.test(document.formUser.password.value)) {
-        alert("User password can have only alphanumerical symbols and underscores");
-        return false;
-    }
-	if (document.formUser.password.value != document.formUser.checkpassword.value) {
-		alert("Passwords do not match");
-        return false;
+	function validateForm() {
+	    var reName = new RegExp(/\w+/);
+	    if(!reName.test(document.formUser.name.value)) {
+	    	alertMessage("User name cannot be empty");
+	        return false;
+	    }
+		var reNotLogPass = new RegExp(/[a-zA-Z0-9_]+[a-zA-Z0-9_;:,-\.]*/); /*\W+*/
+	    if(!reNotLogPass.test(document.formUser.login.value)) {
+	    	alertMessage("User login can have only alphanumerical symbols and underscores");
+	        return false;
+	    }
+	
+		if(!reNotLogPass.test(document.formUser.password.value)) {
+			alertMessage("User password can have only alphanumerical symbols and underscores");
+	        return false;
+	    }
+		if (document.formUser.password.value != document.formUser.checkpassword.value) {
+			alertMessage("Passwords do not match");
+	        return false;
+		}
+		return true;
 	}
-	return true;
-}
--->
+	
+	function alertMessage (text) {
+		$("#alertMessage").hide().html('<div class="alert alert-danger alert-dismissible" role="alert">'+
+				'<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>'+
+				text+'</div>').fadeIn('slow');
+		$("html, body").animate({ scrollTop: 0 }, "slow");
+	}
 </script>
 
-<table cellpadding="0" cellspacing="0">
-    <tr> 
 <% 				
 	String action = request.getParameter("action");
 	String welcome = null;
@@ -52,95 +55,80 @@ function validateForm() {
 		} else if (action.equalsIgnoreCase("CREATEUSER")) {
 			if (userBean.isAdmin())
 				welcome = "Create New User:";
-		} else if (action.equalsIgnoreCase("MODIFYUSERINFO"))
-			welcome = "Modify Personal Data:";
+		} else if (action.equalsIgnoreCase("MODIFYUSERINFO")) {
+			welcome = "Modify Personal Data:";			
+		}
+		
 		if (welcome == null) {
 			welcome = "You do not have sufficient rights to perform this operation. " +
 					 "Only <a href=\"mailto:roh38@pitt.edu\">System Administrator</a> " +
-					 "can create new users.<br/> Return to <a href=\"home.jsp\">Home</a>";
+					 "can create new users.<br/> Return to <a href=\"authoring.jsp\">Home</a>";
 %>
-
-		<td><h3><%=welcome%></h3></td>
-    </tr>
+		<h4><%=welcome%></h4>
 <%			
 		} else {
-		System.out.println((action.equalsIgnoreCase("MODIFYUSER")) ? modifyUserBean.getLogin() :
+			System.out.println((action.equalsIgnoreCase("MODIFYUSER")) ? modifyUserBean.getLogin() :
 						   (action.equalsIgnoreCase("MODIFYUSERINFO")) ? userBean.getLogin() : "");
 %>
-	    <tr> 
-		<td><h3><nobr><%=welcome%></nobr> </h3>    </td>
-    </tr>
-    <tr> 
-		<td>	
-			<form name="formUser" id="formUser" method="post" action="SecurityServlet?action=<%=action%>" onSubmit="return validateForm();">
-						<input type="hidden" name="id" value="
-							<%=(action.equalsIgnoreCase("MODIFYUSER")) ? modifyUserBean.getId() :
-						   (action.equalsIgnoreCase("MODIFYUSERINFO")) ? userBean.getId() : -1%>
-						" />
-			<table width="100%" cellpadding="0" cellspacing="0">
-				<tr>
-					<td class="formfielddark formfieldaligntright">Name :</td>
-					<td >
-						<input type="text" name="name" value="<%=""+((action.equalsIgnoreCase("MODIFYUSER"))?""+modifyUserBean.getName().trim():""+((action.equalsIgnoreCase("MODIFYUSERINFO"))?""+userBeanName:""))%>" />&nbsp;
-					</td>
-				</tr>
-				<tr>
-					<td class="formfieldlight  formfieldaligntright">Login :</td>
-					<td>
-						<input type="text" name="login" <%=(!userBean.isAdmin()) ? "readonly" : ""%> value="<%=(action.equalsIgnoreCase("MODIFYUSER"))?modifyUserBean.getLogin().trim():(action.equalsIgnoreCase("MODIFYUSERINFO"))?userBean.getLogin().trim():""%>" />&nbsp;
-					</td>
-				</tr>
-				<tr>
-					<td class="formfielddark  formfieldaligntright">Password :</td>
-					<td>
-						<input type="password" name="password" value="" />&nbsp;
-					</td>
-				</tr>
-				<tr>
-					<td class="formfieldlight  formfieldaligntright">Repeat Password :</td>
-					<td >
-						<input type="password" name="checkpassword" value="">&nbsp;
-					</td>
-				</tr>
-  				<tr>
-					<td class="formfielddark  formfieldaligntright">Role :</td>
-					<td>
-					<% if (userBean.getRole().equals("admin")) {%>
-					
-					<select name="role" <%=(!userBean.isAdmin()) ? "readonly" : ""%> size="1">
-<%			
-			String role = (action.equalsIgnoreCase("MODIFYUSER")) ? modifyUserBean.getRole() :
-						   (action.equalsIgnoreCase("MODIFYUSERINFO")) ? userBean.getRole() : "";
-%>				    	<option <%=(role.equalsIgnoreCase("admin")) ? "selected" : ""%> value="admin">
-							System Administrator
-						</option>
-						<option <%=(role.equalsIgnoreCase("superuser")) ? "selected" : ""%> value="superuser">
-							Super User
-						</option>
-						<option <%=(role.equalsIgnoreCase("user")) ? "selected" : ""%> value="user">
-							User
-						</option>
-				    </select>
-				      <%}
-				      else {
-				      out.println(userBean.getRole());
-				      }%>
-					</td>
-				</tr>   
-				</table>
-				</td>
-				</tr>
-				<tr>
-					<td>				    
-						<input name="submit" type="submit" value="Submit" />
-					</td>
-				</tr> 
-			
-			</form>
+		<h3><%=welcome%></h3>
+		<hr>
+		<div id="alertMessage"></div>
+	
+		<form class="form-horizontal" role="form" name="formUser" id="formUser" method="post" action="SecurityServlet?action=<%=action%>" onSubmit="return validateForm();">
+			<input type="hidden" name="id" value="<%=(action.equalsIgnoreCase("MODIFYUSER")) ? modifyUserBean.getId() : (action.equalsIgnoreCase("MODIFYUSERINFO")) ? userBean.getId() : -1%>" />
+			<div class="form-group">
+			    <label for="name" class="col-sm-3 control-label">Name:</label>
+			    <div class="col-sm-9">
+			    	<input type="text" name="name" value="<%=""+((action.equalsIgnoreCase("MODIFYUSER"))?""+modifyUserBean.getName().trim():""+((action.equalsIgnoreCase("MODIFYUSERINFO"))?""+userBeanName:""))%>" class="form-control" />
+			    </div>
+			</div>
+			<div class="form-group">
+			    <label for="login" class="col-sm-3 control-label">Login:</label>
+			    <div class="col-sm-9">
+			    	<input type="text" name="login" <%=(!userBean.isAdmin()) ? "readonly" : ""%> value="<%=(action.equalsIgnoreCase("MODIFYUSER"))?modifyUserBean.getLogin().trim():(action.equalsIgnoreCase("MODIFYUSERINFO"))?userBean.getLogin().trim():""%>" class="form-control" />
+			    </div>
+			</div>
+			<div class="form-group">
+			    <label for="password" class="col-sm-3 control-label">Password:</label>
+			    <div class="col-sm-9">
+			    	<input type="password" name="password" value="" maxlength="45" class="form-control" />
+			    </div>
+			</div>
+			<div class="form-group">
+			    <label for="checkpassword" class="col-sm-3 control-label">Repeat Password:</label>
+			    <div class="col-sm-9">
+			    	<input type="password" name="checkpassword" value="" maxlength="45" class="form-control" />
+			    </div>
+			</div>
+			<div class="form-group">
+				<label for="role" class="col-sm-3 control-label">Role:</label>
+				<div class="col-sm-9">
+
+<%
+					if (userBean.getRole().equals("admin")) {
+						String role = (action.equalsIgnoreCase("MODIFYUSER")) ? modifyUserBean.getRole() : (action.equalsIgnoreCase("MODIFYUSERINFO")) ? userBean.getRole() : "";
+%>
+			    	<select name="role" <%=(!userBean.isAdmin()) ? "readonly" : ""%> size="1" class="form-control">
+						<option <%=(role.equalsIgnoreCase("admin")) ? "selected" : ""%> value="admin">System Administrator</option>
+						<option <%=(role.equalsIgnoreCase("superuser")) ? "selected" : ""%> value="superuser">Super User</option>
+						<option <%=(role.equalsIgnoreCase("user")) ? "selected" : ""%> value="user">User</option>
+		    		</select>
+<%
+					} else {
+						out.println(userBean.getRole());
+					}
+%>
+				</div>
+			</div>
+			<div class="form-group">
+			    <div class="col-sm-offset-3 col-sm-9">
+			    	<input name="submit" type="submit" value="Submit" class="btn btn-default">
+			    </div>
+			</div>
+		</form>
 <%	
 		}
 	}
 %>
 
-    </table>
 <%@ include file = "include/htmlbottom.jsp" %>
