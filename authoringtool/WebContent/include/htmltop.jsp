@@ -10,12 +10,10 @@
 	boolean displaySysManage = false;
 	UserBean userBean = (UserBean) session.getAttribute("userBean");
 	String userBeanName = "";
-	if (userBean != null)
-	{
+	if (userBean != null) {
 		userBeanName = userBean.getName();
 		GroupBean gbean = userBean.getGroupBean();
-		if (gbean != null)
-		{
+		if (gbean != null) {
 			if (userBean.getGroupBean().getName().equals("admins")) {    
 				colspan++;
 				displaySysManage = true;
@@ -39,20 +37,19 @@
 <script type="text/javascript" src="<%=request.getContextPath()%>/stylesheets/treetable.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/stylesheets/EditInPlace.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/stylesheets/starrating.js"></script>
-<SCRIPT type="text/javascript" src="<%=request.getContextPath()%>/stylesheets/boxover.js"></SCRIPT>
+<script type="text/javascript" src="<%=request.getContextPath()%>/stylesheets/boxover.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/stylesheets/getQuiz.js"></script>
 <script type="text/javascript">
-function toggleMe(a){
-var e=document.getElementById(a);
-if(!e)return true;
-if(e.style.display=="none"){
-e.style.display="block"
-}
-else{
-e.style.display="none"
-}
-return true;
-}
+	function toggleMe(a){
+		var e=document.getElementById(a);
+		if(!e) return true;
+		if(e.style.display=="none") {
+			e.style.display="block";
+		} else{
+			e.style.display="none";
+		}
+		return true;
+	}
 </script>
 <style>
 

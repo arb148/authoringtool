@@ -55,7 +55,7 @@
 					var invalid = false;
 					rdfID = document.create_example.rdfID.value;
 					for (var index in rdfs) {
-						if (rdfs[index] ==rdfID)
+						if (rdfs[index] == rdfID)
 							invalid = true;
 					}
 	    			if (invalid) {
@@ -112,7 +112,7 @@
 
 <h3>Create example:</h3>
 <hr>
-<form class="form-horizontal" role="form" id = "eform" name = "create_example" method="post" action ="createExampleComment.jsp">
+<form class="form-horizontal" role="form" id = "eform" name = "create_example" method="post" action="createExampleComment.jsp">
 	<div id="alertMessage"></div>
 	<div class="form-group">
     	<label for="topic" class="col-sm-3 control-label">Topic:<span style="color: red;"> *</span></label>
@@ -174,8 +174,5 @@
 	    </div>
 	</div>
 </form>
-          
-</body> 
-</html>
 
 <%@ include file = "include/htmlbottom.jsp" %>

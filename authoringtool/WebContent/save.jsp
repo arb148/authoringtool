@@ -2,17 +2,15 @@
 <%@ include file = "include/htmltop.jsp" %>
 <%@ page import = "java.text.*" %>
 
-
 <%@ page import="java.sql.*" %>
 
 <%
+System.out.println("savejsp");
 	Connection connection = null;
-	Class.forName(this.getServletContext()
-	.getInitParameter("db.driver"));
-	connection = DriverManager.getConnection(this.getServletContext()
-	.getInitParameter("db.webexURL"), this.getServletContext()
-	.getInitParameter("db.user"), this.getServletContext()
-	.getInitParameter("db.passwd"));
+	Class.forName(this.getServletContext().getInitParameter("db.driver"));
+	connection = DriverManager.getConnection(this.getServletContext().getInitParameter("db.webexURL"), this.getServletContext()
+		.getInitParameter("db.user"), this.getServletContext()
+		.getInitParameter("db.passwd"));
     String ex = request.getParameter("dis");
     String rdfId = "";
 	Statement statement = connection.createStatement();
@@ -21,21 +19,21 @@
 	try {
 		int totalline = Integer.parseInt(request.getParameter("max"));
 		for (int i = 1; i <= totalline; i++) {
-		String text = request.getParameter("comment" + i);
-		if (text == null)
-			text = "";
-		text = text.replace("'", "\\'");			
-		String text1 = request.getParameter("code" + i);
-
-		if (text1 == null)
-			text1 = "";
-		text1 = text1.replace("'", "\\'");
-
-		String command1 = "update ent_line set Code = '"
-				+ text1 + "', Comment = '" + text + "' "
-				+ " where LineIndex = '" + i
-				+ "' and DissectionID = '" + ex + "' ";
-		statement.executeUpdate(command1);
+			String text = request.getParameter("comment" + i);
+			if (text == null)
+				text = "";
+			text = text.replace("'", "\\'");			
+			String text1 = request.getParameter("code" + i);
+	
+			if (text1 == null)
+				text1 = "";
+			text1 = text1.replace("'", "\\'");
+	
+			String command1 = "update ent_line set Code = '"
+					+ text1 + "', Comment = '" + text + "' "
+					+ " where LineIndex = '" + i
+					+ "' and DissectionID = '" + ex + "' ";
+			statement.executeUpdate(command1);
 		}
 		String text2 = request.getParameter("Name");
 		String text3 = request.getParameter("Des");
@@ -70,21 +68,28 @@
 			curtopicid = topicRS.getString(1);
 		}
 		String topic = request.getParameter("topic");
-		if (topic.equals(curtopicid) == false)
-		{
-		String command6 = "update rel_topic_dissection set topicID = '"+topic+"' "
-				+ "where DissectionID='" + ex + "'";
-		statement.executeUpdate(command6);
+		if (topic.equals(curtopicid) == false) {
+			String command6 = "update rel_topic_dissection set topicID = '"+topic+"' "
+					+ "where DissectionID='" + ex + "'";
+			statement.executeUpdate(command6);
 		}
-	String newCodeString = getExampleCode(ex, connection);
-	if (prevCodeString.equals(newCodeString) == false)
- 	{
-		codeChanged = true;
- 		String command = "delete from ent_jexample_concept where dissectionId = '"+ex+"'";	
- 		statement.executeUpdate(command); 	
- 	}
-	}
-	finally {
+		String newCodeString = getExampleCode(ex, connection);
+		if (prevCodeString.equals(newCodeString) == false) {
+			codeChanged = true;
+	 		String command = "delete from ent_jexample_concept where dissectionId = '"+ex+"'";	
+	 		statement.executeUpdate(command); 	
+	 	}
+		
+		if (codeChanged) {
+	 		response.sendRedirect("ParserServlet?question="+ex+"&type=example&load=JavaExampleModifyAck.jsp");
+		} else {
+			response.sendRedirect("authoring.jsp?type=example&message=Example saved successfully!&alert=success");
+	 		//response.sendRedirect("JavaExampleModifyAck.jsp");
+		}
+	} catch (Exception e) {
+		e.printStackTrace();
+		response.sendRedirect("authoring.jsp?message=Unknown error has occurred&alert=danger");
+	} finally {
 		try {
 			if (statement != null)
 				statement.close();
@@ -95,15 +100,6 @@
 				connection.close();
 		} catch (SQLException e) {
 		}
-	}
-	if (codeChanged)
-	{
- 		response.sendRedirect("ParserServlet?question="+ex+"&type=example&load=JavaExampleModifyAck.jsp");
-	}
-	else
-	{
- 		response.sendRedirect("JavaExampleModifyAck.jsp");
-
 	}
 %>
 

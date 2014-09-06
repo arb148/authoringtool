@@ -315,20 +315,6 @@ $(document).ready(function(){
 
 
 <script language="javascript">
-<!--
-
-function cOn(td){
-if(document.getElementById||(document.all && !(document.getElementById))){
-td.style.backgroundColor="#ffffe1";
-}
-}
-
-function cOut(td){
-if(document.getElementById||(document.all && !(document.getElementById))){
-td.style.backgroundColor="#FFCC00";
-}
-}
-//-->
 function send_iswriting(e){
      var key = -1 ;
      var shift ;
@@ -341,33 +327,28 @@ function send_iswriting(e){
           document.form.reset() ;
      }
 }
-</script>
-<script language=javascript>
+
 changelist();
-function changeTitle()
-{
-//TODO
-//var selectscope = document.myForm.sc;
-var scopeid = 12;
-//var scopeid=selectscope.options[selectscope.selectedIndex].value;;
-var selectExample = document.myForm.example;
-var ex=selectExample.options[selectExample.selectedIndex].value;;
-
-//if (ex != '-1' & scopeid != '-1')
-//	{
-//	  document.location = "ParserServlet?sc="+scopeid+"&question="+ex+"&type=example";
-//	}
-//else
-document.location.href="concept_indexing1.jsp?sc="+scopeid+"&ex="+ex;
-
+function changeTitle() {
+	//TODO
+	//var selectscope = document.myForm.sc;
+	var scopeid = 12;
+	//var scopeid=selectscope.options[selectscope.selectedIndex].value;;
+	var selectExample = document.myForm.example;
+	var ex=selectExample.options[selectExample.selectedIndex].value;;
+	
+	//if (ex != '-1' & scopeid != '-1')
+	//	{
+	//	  document.location = "ParserServlet?sc="+scopeid+"&question="+ex+"&type=example";
+	//	}
+	//else
+	document.location.href="concept_indexing1.jsp?sc="+scopeid+"&ex="+ex;
 }    
 
-function changeScope()
-{
-var selectscope = document.myForm.sc;
-var scopeid=selectscope.options[selectscope.selectedIndex].value;;
-document.location.href="concept_indexing1.jsp?sc="+scopeid+"&ex=-1";
-
+function changeScope() {
+	var selectscope = document.myForm.sc;
+	var scopeid=selectscope.options[selectscope.selectedIndex].value;;
+	document.location.href="concept_indexing1.jsp?sc="+scopeid+"&ex=-1";
 }    
 </script>
 
@@ -390,51 +371,51 @@ document.location.href="concept_indexing1.jsp?sc="+scopeid+"&ex=-1";
     ResultSetMetaData rsmd6 = null;                      
     ResultSet rs7 = null;   	
     Statement stmt7 = null;
-     String sc="";       	
-     String uid="";
-     ResultSet rs = null;  
-     try{     
-     stmts = conn.createStatement();       
-     rs = stmts.executeQuery("SELECT id FROM ent_user where name = '"+userBeanName+"' ");
-	while(rs.next())
-	  {
-	  	uid=rs.getString(1);  	
-	  }     
-     }catch (SQLException e) {
-         System.out.println("Error occurred " + e);
-      }
-     
-     try {
-        stmts = conn.createStatement();
-        results = stmts.executeQuery("SELECT s.ScopeID,s.Name FROM ent_scope s, rel_scope_privacy sp where s.ScopeID=sp.ScopeID and (sp.privacy='1' or sp.Uid='"+uid+"') and s.domain = 'JAVA'");                
-     }
-     catch (SQLException e) {
-         System.out.println("Error occurred " + e);
-      }
+    String sc="";       	
+    String uid="";
+    ResultSet rs = null;  
+	int columnss=0;     
+	try{     
+		stmts = conn.createStatement();       
+		rs = stmts.executeQuery("SELECT id FROM ent_user where name = '"+userBeanName+"' ");
+		while(rs.next()) {
+			uid=rs.getString(1);  	
+		}
 
-     int columnss=0;     
-     try {
-  
-       rsmds = results.getMetaData();       
-       columnss = rsmds.getColumnCount();      
-     }
-     catch (SQLException e) {
-        System.out.println("Error occurred " + e);
-     }
+		stmts = conn.createStatement();
+		results = stmts.executeQuery("SELECT s.ScopeID,s.Name FROM ent_scope s, rel_scope_privacy sp where s.ScopeID=sp.ScopeID and (sp.privacy='1' or sp.Uid='"+uid+"') and s.domain = 'JAVA'");                
+
+		rsmds = results.getMetaData();       
+		columnss = rsmds.getColumnCount();
+	} catch (SQLException e) {
+		if (conn != null)
+			conn.close();
+		if (stmts != null)
+			stmts.close();
+		if (rs != null)
+			rs.close();
+		if (results != null)
+			results.close();
+		
+		System.out.println("Error occurred " + e);
+		if (!response.isCommitted()) {
+			response.sendRedirect("servletResponse.jsp");
+		}
+	}
 %>	 
 <h3>Please select the example you'd like to index:</h3>
-<table style="width: 100%">
-<tr>
-<td colspan="2">
+<hr>
+<form class="form-horizontal" role="form" name="myForm">
+	<div class="form-group">
+    	<label for="scope" class="col-sm-3 control-label">Example:</label>
+	    <div class="col-sm-9">
+			<select class="form-control" name="example" onChange="Javascript:changeTitle();">
 
-   <form name="myForm">
-
-	<table>
 	<!-- <tr>
 		<td class="formfieldbold formfielddark"><b>Scope: </b></td>
 		<td>
-		<select name="sc" onChange=Javascript:changeScope();>
-		<%
+		<select name="sc" onChange=Javascript:changeScope();>-->
+<%
 		  //  try{
 			//      out.write("<option value='-1' selected>Please select the scope</option>");		    		    
 		
@@ -456,63 +437,50 @@ document.location.href="concept_indexing1.jsp?sc="+scopeid+"&ex=-1";
 		
 		//    }
 		             
-		%>
-		</select>
-		</td>
-	</tr> -->
-	<tr>
-		<td class="formfieldbold formfieldlight">Example: </td>
-		<td>
-		<select name="example" onChange=Javascript:changeTitle();> 
-  <% 
-  Statement stmt = null;
-     try {                
-        stmt = conn.createStatement();
-        ResultSet result = stmt.executeQuery("SELECT e.DissectionID,e.Name,e.description FROM ent_dissection e, rel_scope_dissection r, rel_dissection_privacy dp where e.DissectionID=r.DissectionID and r.ScopeID ="+ request.getParameter("sc")+" and e.dissectionid = dp.dissectionid and (dp.privacy = 1 or dp.uid = "+uid+") order by e.Name" );                                                        
-        int columns=0;
-	ResultSetMetaData rsmd = result.getMetaData();       
-	 columns = rsmd.getColumnCount();        
-       
-           if (request.getParameter("ex").equals("-1"))
-        		out.println("<option value='-1' selected>Please select the example</option>");
-           else
-       		out.println("<option value='-1' >Please select the example</option>");
+				Statement stmt = null;
+				ResultSet result = null;
+				try {                
+					stmt = conn.createStatement();
+					result = stmt.executeQuery("SELECT e.DissectionID,e.Name,e.description FROM ent_dissection e, rel_scope_dissection r, rel_dissection_privacy dp where e.DissectionID=r.DissectionID and r.ScopeID ="+ request.getParameter("sc")+" and e.dissectionid = dp.dissectionid and (dp.privacy = 1 or dp.uid = "+uid+") order by e.Name" );                                                        
+					int columns=0;
+					ResultSetMetaData rsmd = result.getMetaData();       
+					columns = rsmd.getColumnCount();        
+					      
+					if (request.getParameter("ex").equals("-1"))
+						out.println("<option value='-1' selected>Please select the example</option>");
+					else
+						out.println("<option value='-1' >Please select the example</option>");
+					
+					for (int i=1; i<=columns; i++) {    
+						while (result.next()) {  
+							if (result.getString(1).equals(request.getParameter("ex"))){		    
+								out.write("<option value="+result.getString(1)+" selected>" + result.getString(2) + "</option>");		    		    
+							}else{
+								out.write("<option value="+result.getString(1)+">" + result.getString(2) + "</option>");		    		    
+							}
+						}	                       
+					}                     
+					stmt.close();        
+				} catch (SQLException e) {
+					if (result != null)
+						result.close();
+					
+					System.out.println("Error occurred " + e);
+					if (!response.isCommitted()) {
+						response.sendRedirect("servletResponse.jsp");
+					}
+				} finally {
+					try {
+						if (stmt != null)
+							stmt.close();
+					} catch (SQLException e) {}     
+				}
 
-           for (int i=1; i<=columns; i++) {    
-        	   
-  		while (result.next()) {  
-  		    if (result.getString(1).equals(request.getParameter("ex"))){		    
-		    	out.write("<OPTION value="+result.getString(1)+" selected>" + result.getString(2));		    		    
-		    }else{
-		    	out.write("<OPTION value="+result.getString(1)+">" + result.getString(2));		    		    
-		    }
-		 }	                       
-           }                     
-        
-        stmt.close();        
-     } 
-     catch (SQLException e) {
-        System.out.println("Error " + e);
-     }
-     
-   finally {
-    try {
-      if (stmt != null)
-       stmt.close();
-      }  catch (SQLException e) {}     
-   }
-   %>		
-		</select>
-		</td>
-	</tr>
-<%
-     try{
+/*      try{
 	stmt2 = conn.createStatement();       	
 	rs2 = stmt2.executeQuery("SELECT d.Description FROM ent_dissection d where d.DissectionID="+request.getParameter("ex")+" ");
 	while(rs2.next()){
-%>	
 
-<%
 	}
 	stmt2.close();        
     }
@@ -521,77 +489,72 @@ document.location.href="concept_indexing1.jsp?sc="+scopeid+"&ex=-1";
       if (stmt2 != null)
        stmt2.close();
       }  catch (SQLException e) {}     
-   }
+   } */
 %>	
+
+			</select>
+		</div>
+	</div>
+</form>
 	
-
-	</table>
-	</form>
-	
-</td></tr>
-
-
 <%
-Map<String,Integer> classTabMap = new HashMap<String,Integer>();	
-int classLine = 0;
-List<String> ontoConcepts = getOntologyConcepts();
-List<String> allClass = new ArrayList<String>();
-String question = "";
-String dissectionId = request.getParameter("ex");
-if (dissectionId.equals("-1") == false)
-{
-InputStream in = null;
-int length ;
-int bufferSize = 1024;
-byte[] buffer = new byte[bufferSize];        
-int position=0;
-int P = 0;
-String codepart="";
-int QuesType=0; 
-int flag=0;
-ArrayList<String> fileName = new ArrayList<String>();
-ResultSet rs1 = null;
-rs2 = null;
-Statement statement = null;
-try
-{
-	 conn = getConnectionToWebex21();
-	 if (isConnectedToDB(conn))
-	 {
-		String query = "SELECT rdfID FROM ent_dissection where dissectionID = "+dissectionId;
-		statement = conn.createStatement();
-		ResultSet temp = statement.executeQuery(query);
-		while(temp.next())
-		{
-			question = temp.getString(1);
-		    allClass.add(0, question);
-		}	    
-	}    
-	
-}catch (SQLException e) {
-	e.printStackTrace();
-} finally {
-	try {
-		
-		if (rs1 != null)
-			rs1.close();
-		if (rs2 != null)
-			rs2.close();
-		if (statement != null)
-			statement.close();
-	} catch (Exception e) {
-		e.printStackTrace();
-    }
-}
+
+if (request.getParameter("ex") != null && request.getParameter("ex").trim().length() > 0) {
+
+	Map<String,Integer> classTabMap = new HashMap<String,Integer>();	
+	int classLine = 0;
+	List<String> ontoConcepts = getOntologyConcepts();
+	List<String> allClass = new ArrayList<String>();
+	String question = "";
+	String dissectionId = request.getParameter("ex");
+	if (dissectionId.equals("-1") == false) {
+		InputStream in = null;
+		int length ;
+		int bufferSize = 1024;
+		byte[] buffer = new byte[bufferSize];        
+		int position=0;
+		int P = 0;
+		String codepart="";
+		int QuesType=0; 
+		int flag=0;
+		ArrayList<String> fileName = new ArrayList<String>();
+		ResultSet rs1 = null;
+		rs2 = null;
+		Statement statement = null;
+		try {
+			 conn = getConnectionToWebex21();
+			 if (isConnectedToDB(conn)) {
+				String query = "SELECT rdfID FROM ent_dissection where dissectionID = "+dissectionId;
+				statement = conn.createStatement();
+				ResultSet temp = statement.executeQuery(query);
+				while(temp.next()) {
+					question = temp.getString(1);
+				    allClass.add(0, question);
+				}	    
+			}    
+		}catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs1 != null)
+					rs1.close();
+				if (rs2 != null)
+					rs2.close();
+				if (statement != null)
+					statement.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+		    }
+		}
     
-    
-int tabNumer = 0;
-classTabMap.put(question,tabNumer); //add first tab
+		int tabNumer = 0;
+		classTabMap.put(question,tabNumer); //add first tab
 %>
 <tr>
 		<td valign="top" >
 		<div class="webfx-main-body">
 <!-- begin tab pane -->
+<div class="col-xs-12 col-md-6" style="overflow-x:scroll;">
 <div class="tab-pane" id="tabpane" style="height:500px;width:470px;overflow:auto;border-style:solid;border-width:1px; border-color:rgb(120,172,255);padding: 10px">
 <script type="text/javascript">
 tabPane = new WebFXTabPane( document.getElementById( "tabpane" ), false );
@@ -630,9 +593,13 @@ try {
 <!-- end intro page -->      
 
 
-</div></div>
-		</td>
-		<td valign="top">		
+</div>
+</div>
+
+
+</div>
+
+<div class="col-xs-12  col-md-6" style="overflow-x:scroll;">	
 		<Form name=indexForm style = "border-style:solid;border-width:1px; border-color:rgb(120,172,255);padding: 10px;margin:  10px 0px 10px 0px;">
 		
 <div style="height:420px;width:550px;overflow:auto;border-style:solid;border-width:1px; border-color:rgb(120,172,255);padding: 10px;white-space:pre-wrap;">
@@ -787,11 +754,17 @@ try {
     <tr><td colspan="7" align="right"><input type="button"  name ="addBtn" id ="addBtn" value="Add" disabled="disabled"></td></tr>
     </table>
 	<div align="right"><input type="button" name = "saveBtn" id = "saveBtn" value="Save"></div>
-	</Form>		
+	</Form>	
+	
+</div>	
 	</td>	  
 		
 	</tr>
-	<%
+	
+<script>
+	var lineCount=<%=classLine%>;
+</script>
+<%
 	
 	    }//end if connection to db
 	}catch (SQLException e) {
@@ -811,15 +784,11 @@ try {
 			disconnectFromDB(conn); //here connection is closed
 			e.printStackTrace();
 		}} 		
-		}%>
-</td>
-</tr>
-</table>
-	</body> 
-<script>
-	var lineCount=<%=classLine%>;
-</script>
-</html>
+		}
+		
+}		
+%>
+
 <%!
 public Connection getConnectionToWebex21()
 {
@@ -833,43 +802,30 @@ public Connection getConnectionToWebex21()
 	}
 	return conn;
 }
-
-public Connection getConnectionToTreemap()
-{
-	Connection conn = null;
-	try
-	{
-		Class.forName(this.getServletContext().getInitParameter("db.driver"));
-		conn = DriverManager.getConnection(this.getServletContext().getInitParameter("db.treemapURL"),this.getServletContext().getInitParameter("db.user"),this.getServletContext().getInitParameter("db.passwd"));
-	}catch (Exception e) {
-		e.printStackTrace();
-	}
-	return conn;
-}
-
+ 
  public List<String> getOntologyConcepts()
  {
 	 List<String> ontoConcepts = new ArrayList<String>();
-	 Connection conn = getConnectionToTreemap();
+	 Connection conn = null;
 	 PreparedStatement pstmt = null;
 	 ResultSet rs = null;
-	 if (isConnectedToDB(conn))
+	try
 	 {
-		 try
-		 {
-			 String sqlCommand = " select distinct concept2 from rel_onto_concept_concept" +
-			   					 " where concept2 not in" +
-								 " (select concept1 from treemap.rel_onto_concept_concept)" +
-			    				 " order by concept2";		
-			pstmt = conn.prepareStatement(sqlCommand);
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				ontoConcepts.add(rs.getString(1));
-			}			 
-		 }catch (SQLException e) {
-			 e.printStackTrace();
-		}			
-	  }
+		 Class.forName(this.getServletContext().getInitParameter("db.driver"));
+		 conn = DriverManager.getConnection(this.getServletContext().getInitParameter("db.um2"),this.getServletContext().getInitParameter("db.user"),this.getServletContext().getInitParameter("db.passwd"));
+	
+		 String sqlCommand = " SELECT Title FROM ent_concept" +
+		   					 " WHERE Description=\"java ontology v2\" AND ConceptID IN" +
+							 " (SELECT ChildConceptID FROM rel_concept_concept WHERE ChildConceptID NOT IN (SELECT distinct ParentConceptID FROM rel_concept_concept))";
+		 
+		pstmt = conn.prepareStatement(sqlCommand);
+		rs = pstmt.executeQuery();
+		while (rs.next()) {
+			ontoConcepts.add(rs.getString(1));
+		}			 
+	 }catch (Exception e) {
+		 e.printStackTrace();
+	}			
 	 return ontoConcepts;
  }
  
@@ -895,5 +851,6 @@ public Connection getConnectionToTreemap()
 			e.printStackTrace();
 		}		
 	}
- 
  %>
+
+ <%@ include file = "include/htmlbottom.jsp" %>  

@@ -34,8 +34,7 @@ public class AddExampleLineServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Connection connection = null;
     	Statement statement = null;
 		String ex = request.getParameter("dis");
@@ -80,12 +79,9 @@ public class AddExampleLineServlet extends HttpServlet {
 			String title = getExampleRDF(ex,connection);
 			parser.parseExample(title,code,this.getServletContext(),false);
 	 		
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			response.sendRedirect("authoring.jsp?message=Unknown error has occurred&alert=danger");
 		}
 		finally {
 			try {

@@ -810,11 +810,12 @@ if(flag==1){
 		%>
 	</table></div>
 	<%
-	for (int i = 0; i < concepts.size(); i++)
-		{
-		%>
+		for (int i = 0; i < concepts.size(); i++) {
+%>
 			<input type="hidden" name='<%=i+"Concept"%>' id='<%=i+"Concept"%>' value='<%=concepts.get(i)%>'>	      
-	  <%}%>
+<%
+		}
+%>
     <input type="hidden" name="conceptCount" id = "conceptCount" value="<%=concepts.size()%>">	
     <div style = "margin:  10px;">
     <img src="images/expand_icon.png" id = 'addConceptImg' fn = 'expand'>
@@ -823,16 +824,19 @@ if(flag==1){
     <table width="100%" id ="addTable"  style = "display:none;border-style:solid;border-width:1px; border-color:rgb(120,172,255);padding: 10px">    
     <tr><td style = "padding-bottom:10px" colspan="7">
     <select id = 'addConceptList' name = "addConceptList" onchange="enableAddRow(<%=allClass.size()%>)">
-    <% 
+<% 
     List<String> totalConcepts = getOntologyConcepts();
+System.out.println(totalConcepts.toString());
     for (String c : concepts)
     	totalConcepts.remove(c);
     Collections.sort(totalConcepts);
 	out.println("<option value='-1'>Please select the concept</option>");
     for (String c: totalConcepts){
-	%>
+ %>
 	<option value='<%=c%>'><%=c%></option>
-	<% } %>
+<% 
+	}
+%>
     </select>
     </td></tr>   
     <%  String tableHtml = "";
@@ -926,26 +930,30 @@ public Connection getConnectionToTreemap()
  public List<String> getOntologyConcepts()
  {
 	 List<String> ontoConcepts = new ArrayList<String>();
-	 Connection conn = getConnectionToTreemap();
+	 Connection conn = null;
 	 PreparedStatement pstmt = null;
 	 ResultSet rs = null;
-	 if (isConnectedToDB(conn))
+	try
 	 {
-		 try
-		 {
-			 String sqlCommand = " select distinct concept2 from rel_onto_concept_concept" +
-			   					 " where concept2 not in" +
-								 " (select concept1 from treemap.rel_onto_concept_concept)" +
-			    				 " order by concept2";		
-			pstmt = conn.prepareStatement(sqlCommand);
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				ontoConcepts.add(rs.getString(1));
-			}			 
-		 }catch (SQLException e) {
-			 e.printStackTrace();
-		}			
-	  }
+		 Class.forName(this.getServletContext().getInitParameter("db.driver"));
+		 conn = DriverManager.getConnection(this.getServletContext().getInitParameter("db.um2"),this.getServletContext().getInitParameter("db.user"),this.getServletContext().getInitParameter("db.passwd"));
+		 //String sqlCommand = " select distinct concept2 from rel_onto_concept_concept" +
+		   	//				 " where concept2 not in" +
+				//			 " (select concept1 from treemap.rel_onto_concept_concept)" +
+		    		//		 " order by concept2";
+		 System.out.println("\n\n\nGetting concepts\n\n\n");
+		 String sqlCommand = " SELECT Title FROM ent_concept" +
+		   					 " WHERE Description=\"java ontology v2\" AND ConceptID IN" +
+							 " (SELECT ChildConceptID FROM rel_concept_concept WHERE ChildConceptID NOT IN (SELECT distinct ParentConceptID FROM rel_concept_concept))";
+		 
+		pstmt = conn.prepareStatement(sqlCommand);
+		rs = pstmt.executeQuery();
+		while (rs.next()) {
+			ontoConcepts.add(rs.getString(0));
+		}			 
+	 }catch (Exception e) {
+		 e.printStackTrace();
+	}			
 	 return ontoConcepts;
  }
  

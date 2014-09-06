@@ -123,7 +123,6 @@ public class Parser2 {
 		if (classNames.isEmpty() == false) {
 			index(curNode); 
 		} 		
-		
 		else
 		{
 			String[] classMethodDefinitionConcepts = { "ClassDefinition","PublicClassSpecifier","MethodDefinition","PublicMethodSpecifier","VoidDataType"};

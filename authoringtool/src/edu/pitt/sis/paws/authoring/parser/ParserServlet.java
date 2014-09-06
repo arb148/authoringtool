@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -35,46 +36,67 @@ public class ParserServlet extends HttpServlet {
 		String question = request.getParameter("question"); //question is rdfid for quiz and dissectionId for example
 		String scope = request.getParameter("sc");
 		String load = request.getParameter("load");
-		DB db = new DB();
-		db.connectToWebex21(this.getServletContext());
-		if (db.isConnectedToWebex21())
-		{
-			String type = request.getParameter("type");
-			if (type.equals("example"))
-			{			
-					Parser2 parser = new Parser2();
-					String code = db.getExampleCode(question);
-					String title = db.getExampleRDF(question);
-					parser.parseExample(title,code,this.getServletContext(),false);
-					//response.sendRedirect("concept_indexing1.jsp?sc="+scope+"&ex="+question);
-					response.sendRedirect(load);
-			}			
-			else
-			{
-				db.connectToWebex21(this.getServletContext());
-				
-					Parser2 parser = new Parser2();
-					Blob testerCode = db.getQuestionCode(question);
-					int minvar = db.getQuestionMinVar(question);
-					int qtype = db.getQuestionType(question);
+		String type = request.getParameter("type");
+		
+		if (question != null && question.trim().length() > 0 && load != null && load.trim().length() > 0 && type != null && type.trim().length() > 0) {
+			DB db = new DB();
+			db.connectToWebex21(this.getServletContext());
+			if (db.isConnectedToWebex21()) {
+				if (type.equals("example")) {
 					try {
-						parser.parse(question,getSource(testerCode.getBinaryStream(),minvar,qtype),this.getServletContext(),true);
+						System.out.println("before parsing example");
+						Parser2 parser = new Parser2();
+						String code = db.getExampleCode(question);
+						String title = db.getExampleRDF(question);
+						parser.parseExample(title, code,
+								this.getServletContext(), false);
+						//response.sendRedirect(load);
+						response.sendRedirect("authoring.jsp?message=Example saved successfully!&alert=success");
+					} catch (Exception e) {
+						e.printStackTrace();
+						response.sendRedirect("authoring.jsp?type=example&message=Sorry, we could not process your example&alert=danger");
+					} finally {
+						db = null;
+					}
+				} else {
+					try {
+						db.connectToWebex21(this.getServletContext());
+						Parser2 parser = new Parser2();
+						Blob testerCode = db.getQuestionCode(question);
+						int minvar = db.getQuestionMinVar(question);
+						int qtype = db.getQuestionType(question);
+						
+						parser.parse(
+								question,
+								getSource(testerCode.getBinaryStream(), minvar,
+										qtype), this.getServletContext(), true);
 						List<String> quizClassList = db.getQuizClass(question);
-						Map<String,String> externalClassSourceMap = getExternalClassSource(question,minvar,qtype,quizClassList);
-						for (String className : externalClassSourceMap.keySet())			
-							parser.parse(question, externalClassSourceMap.get(className),this.getServletContext(),false);
+						Map<String, String> externalClassSourceMap = getExternalClassSource(
+								question, minvar, qtype, quizClassList);
+						for (String className : externalClassSourceMap.keySet())
+							parser.parse(question,
+									externalClassSourceMap.get(className),
+									this.getServletContext(), false);
 						db.disconnectFromWebex21();
 						parser = null;
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					//response.sendRedirect("jquestion_concept.jsp?question="+question);
-					response.sendRedirect(load);
-		}
-		
-			db = null;
 
+						//response.sendRedirect(load);
+						response.sendRedirect("authoring.jsp?type=quiz&message=Example saved successfully!&alert=success");
+					} catch (Exception e) {
+						e.printStackTrace();
+						response.sendRedirect("authoring.jsp?message=Sorry, we could not process your question&alert=danger");
+					} finally {
+						db = null;
+					}
+				}
+
+				db = null;
+
+			} else {
+				response.sendRedirect("authoring.jsp?message=Unknown error has occurred&alert=danger");
+			}
+		} else {
+			response.sendRedirect("authoring.jsp?message=Unknown error has occurred&alert=danger");
 		}
 	}
 	

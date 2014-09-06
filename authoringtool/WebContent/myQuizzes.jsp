@@ -54,7 +54,7 @@ $(document).ready(function() {
 	}                                                                                
 </script>
 
-<h3><% if (pageType.equalsIgnoreCase("modify")) { out.print("Modify Java Topic:"); }  else { out.print("My Topics:"); }%></h3>
+<h3><% if (pageType.equalsIgnoreCase("modify")) { out.print("Modify Topics:"); }  else { out.print("My Topics:"); }%></h3>
 
 <form role="form" name="JQuestionModify" method="post" action="jquestion_modify_save.jsp">
 	<ul class="list-group">

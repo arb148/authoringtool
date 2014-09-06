@@ -66,7 +66,7 @@ function function3(obj,i){
     	 uid = rs.getString(1);
 	 }
  %>
- <h3>Create Java Topic:</h3>
+ <h3>Create Topic:</h3>
  <hr>
 <form class="form-horizontal" role="form" name="fr1" id  ="fr1"  method="post" action = "javaq_create_save1.jsp">
 	<div id="alertMessage"></div>

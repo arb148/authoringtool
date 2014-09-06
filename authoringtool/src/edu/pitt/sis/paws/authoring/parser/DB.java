@@ -26,6 +26,8 @@ public class DB {
 	private boolean isConnGuanjieValid;
 	private Connection um2Conn;
 	private boolean isConnum2Valid;
+	private Connection aggregateConn;
+	private boolean isConnAggregateValid;
 
 
 	public void connectToWebex21(ServletContext sv)
@@ -95,6 +97,23 @@ public class DB {
 		  }	
 	}
 	
+	public void connectToAggregate(ServletContext sv)
+	{
+		  String url = sv.getInitParameter("db.aggregateURL");
+		  String driver = sv.getInitParameter("db.driver");
+		  String userName =sv.getInitParameter("db.user");
+		  String password = sv.getInitParameter("db.passwd");
+		  
+		  try {
+			  Class.forName(driver).newInstance();
+			  aggregateConn = DriverManager.getConnection(url,userName,password);
+			  isConnAggregateValid = true;
+			  System.out.println("Connected to the database aggregate");
+		  } catch (Exception e) {
+			  e.printStackTrace();
+		  }
+	}
+	
 	
 	public boolean isConnectedToWebex21()
 	{
@@ -148,6 +167,19 @@ public class DB {
 		return false;
 	}
 	
+	public boolean isConnectedToAggregate()
+	{
+		if (aggregateConn != null) {
+			try {
+				if (aggregateConn.isClosed() == false & isConnAggregateValid)
+					return true;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+
 	public void disconnectFromWebex21()
 	{
 		if (connWebex21 != null)
@@ -187,6 +219,17 @@ public class DB {
 			try {
 				treemapConn.close();
 			    System.out.println("Database treemap Connection Closed");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+	}
+	
+	public void disconnectFromAggregate()
+	{
+		if (aggregateConn != null)
+			try {
+				aggregateConn.close();
+			    System.out.println("Database aggregate Connection Closed");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -302,31 +345,52 @@ public class DB {
 		try
 		{
 			//determine the topic of the content
-			if (isConnectedToGuanjie() == false)
-				connectToGuangie(sc);
-			if (isConnectedToGuanjie())
-			{
-				sqlCommand = "SELECT topic_name FROM guanjie.rel_topic_content where content_name = '"+title+"'";
-				ps = guanjieConn.prepareStatement(sqlCommand);
-				ResultSet rs = ps.executeQuery();
-				while(rs.next())
-				{
-					topic = rs.getString(1);
-				}
-				sqlCommand = " SELECT distinct concept_name" +
-						     " FROM guanjie.del_rel_topic_concept_agg"+
-						     " where topic_name = '"+topic+"' and direction = 'outcome'";						
-				ps = guanjieConn.prepareStatement(sqlCommand);
-				rs = ps.executeQuery();
-				while(rs.next())
-				{
-					topicOutcomeConceptList.add(rs.getString(1));
-				}				
-			}
+//			if (isConnectedToGuanjie() == false)
+//				connectToGuangie(sc);
+//			if (isConnectedToGuanjie())
+//			{
+//				sqlCommand = "SELECT topic_name FROM guanjie.rel_topic_content where content_name = '"+title+"'";
+//				ps = guanjieConn.prepareStatement(sqlCommand);
+//				ResultSet rs = ps.executeQuery();
+//				while(rs.next())
+//				{
+//					topic = rs.getString(1);
+//				}
+//				sqlCommand = " SELECT distinct concept_name" +
+//						     " FROM guanjie.del_rel_topic_concept_agg"+
+//						     " where topic_name = '"+topic+"' and direction = 'outcome'";						
+//				ps = guanjieConn.prepareStatement(sqlCommand);
+//				rs = ps.executeQuery();
+//				while(rs.next())
+//				{
+//					topicOutcomeConceptList.add(rs.getString(1));
+//				}				
+//			}
+//			if (isConnectedToAggregate() == false)
+//				connectToAggregate(sc);
+//			if (isConnectedToAggregate())
+//			{
+//				System.out.println("connected to agg");
+//				sqlCommand = "SELECT topic_name FROM aggregate.rel_topic_content where content_name = '"+title+"'";
+//				ps = aggregateConn.prepareStatement(sqlCommand);
+//				ResultSet rs = ps.executeQuery();
+//				while(rs.next()) {
+//					topic = rs.getString(1);
+//				}
+//				sqlCommand = " SELECT distinct concept_name" +
+//						     " FROM aggregate.del_rel_topic_concept_agg"+
+//						     " where topic_name = '"+topic+"' and direction = 'outcome'";						
+//				ps = aggregateConn.prepareStatement(sqlCommand);
+//				rs = ps.executeQuery();
+//				while(rs.next()) {
+//					topicOutcomeConceptList.add(rs.getString(1));
+//				}				
+//			}
 			
-			String direction = "prerequisite";
-			if (topicOutcomeConceptList.contains(concept))
-				direction = "outcome";
+			String direction = "unknown";
+//			String direction = "prerequisite";
+//			if (topicOutcomeConceptList.contains(concept))
+//				direction = "outcome";
 			sqlCommand = "select * from "+table+" where title = ? and concept = ? and class = ? and sline = ? and eline =?";
 			ps = connWebex21.prepareStatement(sqlCommand);
 			ps.setString(1, title);
@@ -682,15 +746,15 @@ public class DB {
 		List<String> ids = new ArrayList<String>();
 		String temp = "";
 		try {
-			connectToGuangie(sc);
-			if (isConnectedToGuanjie())
+			connectToAggregate(sc);
+			if (isConnectedToAggregate())
 			{
 				sqlCommand = "SELECT content_name  FROM ent_content where content_type = 'example' and domain = 'java'";
-				ps = guanjieConn.prepareStatement(sqlCommand);
+				ps = aggregateConn.prepareStatement(sqlCommand);
 				rs = ps.executeQuery();
 				while (rs.next())
 					ids.add(rs.getString(1));
-				disconnectFromGuanjie();
+				disconnectFromAggregate();
 				for (int i = 0; i< ids.size();i++)
 				{
 					temp+="'"+ids.get(i)+"'";
